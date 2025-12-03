@@ -22,20 +22,7 @@ const route = createRoute({
 
 app.openapi(route, async (c) => {
     try{
-        // const options = {
-        //     method: "POST",
-        //     url: `${BASE_URL}/resources`,
-        //     headers: { 
-        //         "Content-Type": "application/json",
-        //         "Authorization": `Bearer ${process.env.AUTH_TOKEN}`
-        //     },
-        //     data: {
-        //         resources: ["films"],
-        //     },
-        // };
-
-        // const { data } = await axios.request(options);
-
+        console.log(`Received /sort/films-by-pop`);
         const filmsResource = await getCachedResource<TFilm>("films", async () => {
             const films = await getResource<TFilm>("films");
             await populateResources(films, ["characters", "planets", "starships", "vehicles", "species"]);
@@ -62,9 +49,6 @@ app.openapi(route, async (c) => {
             status: "There was an error"
         })
     }
-
-    
-    
-})
+});
 
 export default app;
