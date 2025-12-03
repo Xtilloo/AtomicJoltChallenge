@@ -1,5 +1,6 @@
 import fastq, { queueAsPromised } from "fastq";
-import { swapiClient } from "../src/clients/swapi-client";
+import { swapiClient } from "../clients/swapi-client";
+import { PrismaClient } from '@prisma/client';
 
 const worker = async (url: string) => {
     const res = await swapiClient.get(url.replace('https://swapi.dev/api', ''));
@@ -44,4 +45,51 @@ export async function populateResources(list: any[], attributes: string[]) {
 
     // Wait for all items in the list to finish
     await Promise.all(updates);
+}
+
+const prisma = new PrismaClient();
+const MAX_AGE = 24 * 60 * 60 * 1000; // 24 hr -> ms
+
+// Function to probe db for cached resources
+export async function getCachedResource<T>(
+    resourceName: string,
+    fetchAndProcess: () => Promise<T[]>
+): Promise<T[]> {
+
+    // Check db
+    const cached = await prisma.resourceCache.findUnique({
+        where: { id: resourceName }
+    });
+
+    // Validate cache
+    if (cached) {
+        const isOld = (Date.now() - cached.updatedAt.getTime()) > MAX_AGE;
+
+        if (!isOld) {
+            // CASE: Found resource less than 24 hr old
+            console.log(`Found cached resource: ${resourceName}`);
+            return JSON.parse(cached.data) as T[];
+        }
+        console.log(`Found old cached resource: ${resourceName}`);
+    } else {
+        console.log(`No resource cache found for ${resourceName}`);
+    }
+
+    // If old or non-existent, get resources from swapi API
+    const newData = await fetchAndProcess();
+
+    // Save resources to database
+    await prisma.resourceCache.upsert({
+        where: { id: resourceName },
+        update: {
+            data: JSON.stringify(newData),
+            updatedAt: new Date()
+        },
+        create: {
+            id: resourceName,
+            data: JSON.stringify(newData)
+        }
+    });
+
+    return newData;
 }

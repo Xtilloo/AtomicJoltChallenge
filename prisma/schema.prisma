@@ -1,0 +1,14 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model ResourceCache {
+  id          String      @id
+  data        String  
+  updatedAt   DateTime    @updatedAt
+}

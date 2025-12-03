@@ -1,8 +1,8 @@
 import { createRoute, OpenAPIHono } from '@hono/zod-openapi';
 import { BodySchema } from '../../schemas/resources';
-import { TFilm, TPeople, TPlanets, TSpecies, TStarship, TVehicles } from '../../../lib/types';
+import { TFilm, TPeople, TPlanets, TSpecies, TStarship, TVehicles } from '../../lib/types';
 import { swapiClient } from '../../clients/swapi-client';
-import { populateResources } from '../../../lib/helpers';
+import { getCachedResource, populateResources } from '../../lib/helpers';
 
 const app = new OpenAPIHono();
 
@@ -50,13 +50,16 @@ app.openapi(route, async (c) => {
         vehicles: [],
         species: [],
         planets: []
-    }
+    };
 
     // Get People
     if (resourceTypes.includes("people")) {
         try{
-            const resource = await getResource<TPeople>('people');
-            data.people.push(...resource);
+            data.people = await getCachedResource<TPeople>("people", async () => {
+                const people = await getResource<TPeople>("people"); 
+                await populateResources(people, ["films", "vehicles", "species", "starships"])
+                return people;
+            })
         }
         catch (error) {
             console.error("Error getting people", error);
@@ -66,8 +69,11 @@ app.openapi(route, async (c) => {
     // Get Films
     if (resourceTypes.includes("films")) {
         try{
-            const resource = await getResource<TFilm>('films');
-            data.films.push(...resource);
+            data.films = await getCachedResource<TFilm>("films", async () => {
+                const films = await getResource<TFilm>("films");
+                await populateResources(films, ["planets", "vehicles", "species", "starships"]);
+                return films;
+            })
         }
         catch (error) {
             console.error("Error getting people", error);
@@ -77,8 +83,11 @@ app.openapi(route, async (c) => {
     // Get Starships
     if (resourceTypes.includes("starships")) {
         try{
-            const resource = await getResource<TStarship>('starships');
-            data.starships.push(...resource);
+            data.starships = await getCachedResource<TStarship>("starships", async () => {
+                const starships = await getResource<TStarship>("starships");
+                await populateResources(starships, ["films", "pilots"]);
+                return starships;
+            })
         }
         catch (error) {
             console.error("Error getting people", error);
@@ -88,8 +97,11 @@ app.openapi(route, async (c) => {
     // Get Vehicles
     if (resourceTypes.includes("vehicles")) {
         try{
-            const resource = await getResource<TVehicles>('vehicles');
-            data.vehicles.push(...resource);
+            data.vehicles = await getCachedResource<TVehicles>("vehicles", async () => {
+                const vehicles = await getResource<TVehicles>("vehicles");
+                await populateResources(vehicles, ["films", "pilots"]);
+                return vehicles;
+            })
         }
         catch (error) {
             console.error("Error getting people", error);
@@ -99,8 +111,11 @@ app.openapi(route, async (c) => {
     // Get Species
     if (resourceTypes.includes("species")) {
         try{
-            const resource = await getResource<TSpecies>('species');
-            data.species.push(...resource);
+            data.species = await getCachedResource<TSpecies>("species", async () => {
+                const species = await getResource<TSpecies>("species");
+                await populateResources(species, ["films", "people"]);
+                return species;
+            })
         }
         catch (error) {
             console.error("Error getting people", error);
@@ -110,45 +125,16 @@ app.openapi(route, async (c) => {
     // Get Planets
     if (resourceTypes.includes("planets")) {
         try{
-            const resource = await getResource<TPlanets>('planets');
-            data.planets.push(...resource);
+            data.planets = await getCachedResource<TPlanets>("planets", async () => {
+                const planets = await getResource<TPlanets>("planets");
+                await populateResources(planets, ["films", "residents"]);
+                return planets;
+            })
         }
         catch (error) {
             console.error("Error getting people", error);
         }
     }
-
-    // Because SWAPI returns URL's for things like films and species and vehicles, get the actual data from those URL's (with a depth of 1 to prevent infinite recursion)
-    if (data.people.length > 0) {
-        await populateResources(data.people, ["films", "vehicles", "species", "starships"]);
-    }
-
-    // Update Films
-    if (data.films.length > 0) {
-        // SWAPI calls people "characters" here
-        await populateResources(data.films, ["characters", "planets", "starships", "vehicles", "species"]);
-    }
-
-    // Update Starships
-    if (data.starships.length > 0) {
-        await populateResources(data.starships, ["films", "pilots"]);
-    }
-
-    // Update Vehicles
-    if (data.vehicles.length > 0) {
-        await populateResources(data.vehicles, ["films", "pilots"]);
-    }
-
-    // Update Species
-    if (data.species.length > 0) {
-        await populateResources(data.species, ["films", "people"]);
-    }
-
-    // Update Planets
-    if (data.planets.length > 0) {
-        await populateResources(data.planets, ["films", "residents"]);
-    }
-
 
     return c.json({
         status: "healthy",
