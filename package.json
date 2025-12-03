@@ -1,0 +1,34 @@
+{
+  "name": "atomicjoltchallenge",
+  "version": "1.0.0",
+  "description": "Atomic Jolt Coding Challenge",
+  "homepage": "https://github.com/Xtilloo/AtomicJoltChallenge#readme",
+  "bugs": {
+    "url": "https://github.com/Xtilloo/AtomicJoltChallenge/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Xtilloo/AtomicJoltChallenge.git"
+  },
+  "license": "ISC",
+  "author": "Xtilloo",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.6",
+    "@hono/zod-openapi": "^1.1.5",
+    "@scalar/hono-api-reference": "^0.9.25",
+    "@types/node": "^24.10.1",
+    "axios": "^1.13.2",
+    "dotenv": "^17.2.3",
+    "fast-glob": "^3.3.3",
+    "fastq": "^1.19.1",
+    "hono": "^4.10.7",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
