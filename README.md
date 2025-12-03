@@ -3,7 +3,7 @@ Coding Challenge for Atomic Jolt interview
 
 ## Star Wars API
 
-A high performance backend API that aggregates data from the SWAPI API. This project focuseson solving common external API challenges, handling dependencies, enforcing concurrency limits, and implementing persistent caching.
+A high performance backend API that aggregates data from the [SWAPI](https://swapi.dev/) API. This project focuseson solving common external API challenges, handling dependencies, enforcing concurrency limits, and implementing persistent caching.
 
 ---
 
@@ -36,7 +36,7 @@ To prevent Rate limits from being reached on the external API, requests are mana
 SWAPI includes strings containing values like: "unknown" or "n/a" which can cause difficulties when trying to sort values. 
 
 - The API implements a generic sort method that santizes numeric strings by removing unwanted characters
-- Ensures accurate sorting
+- `/sort/films-by-pop` sorts films by character count in descending order
 
 ---
 
@@ -99,6 +99,51 @@ This project includes fully interactive OpenAPI documentation
 
 ---
 
+## Testing With Postman
+
+To test the endpoints, use postman. [Setup Postman](https://learning.postman.com/docs/getting-started/overview/)...
+
+### `GET http://localhost:3000/api/sort/films-by-pop`:
+
+- No request body 
+- Authorization: `Bearer supersecrettoken`
+- Response: 
+    ```JSON
+    {
+        "data": {
+            [{"title": string, "character_count": number, "characters": string[]}]
+        }
+    }
+    ```
+    Where the titles are the names of the films, character_count is the total number of characters, and characters is a list of character names.
+
+### `POST http://localhost:3000/api/resources`:
+
+- Request body: 
+    ```JSON
+    {
+        "resources": ["people", "films", ...]
+    }
+    ```
+    Where you choose what resource you want to be returned.
+
+- Authorization: `Bearer supersecrettoken`
+- Response:
+    ```JSON
+    {
+        "data": {
+            "people": [...],
+            "films": [...],
+            "vehicles": [...],
+            "starships": [...],
+            "species": [...],
+            "planets": [...]
+        }
+    }
+    ```
+    Where the arrays are the unfiltered response from the external API. This is useful for applications that may need to access various attributes from various resources from an external API. 
+
+
 ## Project Structure
 
 ```
@@ -116,3 +161,7 @@ src/
 │   └── schemas/            # Route schemas
 
 ```
+
+## Development Process
+
+When developing this project, I use AI when it comes to optimizing, improving efficiency, and reducing problems/errors. For example, when writing the sort algorithm in `src/lib/helpers.ts` I develop the initial outline of what the method should do, and implement it. Then, I use AI to review my implementation and ensure everything functions as expected, is efficient, and is safe (especially with types in TypeScript). 
