@@ -47,6 +47,21 @@ export async function populateResources(list: any[], attributes: string[]) {
     await Promise.all(updates);
 }
 
+export async function getResource<T>(resource: string) {
+    let data: T[] = [];
+    let link:
+        | string
+        | undefined = `/${resource}/`;
+
+    while (link) {
+        const res: {data: {count: number, next: string, results: T[]}} = await swapiClient.get(link);
+        data.push(...res.data.results);
+        link = res?.data?.next?.replace("https://swapi.dev/api/", "");
+    }
+
+    return data;
+}
+
 const prisma = new PrismaClient();
 const MAX_AGE = 24 * 60 * 60 * 1000; // 24 hr -> ms
 
@@ -92,4 +107,35 @@ export async function getCachedResource<T>(
     });
 
     return newData;
+}
+
+export function sort(data: any[], attribute: string, order: 'asc' | 'desc' = 'desc') {
+    return data.sort((a, b) => {
+        let valA = a[attribute];
+        let valB = b[attribute];
+
+        if (Array.isArray(valA)) {
+            valA = valA.length;
+            valB = valB.length;
+        }
+        else if (typeof valA === 'string') {
+            const numA = parseFloat(valA.replace(/,/g, '')); // < remove commas
+            const numB = parseFloat(valB.replace(/,/g, ''));
+
+            // If the number is valid, use it, otherwise its -1
+            valA = !isNaN(numA) ? numA: -1;
+            valB = !isNaN(numB) ? numB: -1;
+        }
+
+        if (valA == -1) return 1;
+        if (valB == -1) return -1;
+
+        if (order === 'desc') {
+            return valB - valA;
+        } else {
+            return valA - valB;
+        }
+
+
+    })
 }

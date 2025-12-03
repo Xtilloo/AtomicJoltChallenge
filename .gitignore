@@ -3,5 +3,10 @@
 
 node_modules/
 
+
+# Database
 *.log
 /src/generated/prisma
+prisma/dev.db
+*.db
+*.db-journal

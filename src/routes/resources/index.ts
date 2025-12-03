@@ -1,12 +1,9 @@
 import { createRoute, OpenAPIHono } from '@hono/zod-openapi';
 import { BodySchema } from '../../schemas/resources';
 import { TFilm, TPeople, TPlanets, TSpecies, TStarship, TVehicles } from '../../lib/types';
-import { swapiClient } from '../../clients/swapi-client';
-import { getCachedResource, populateResources } from '../../lib/helpers';
+import { getCachedResource, getResource, populateResources } from '../../lib/helpers';
 
 const app = new OpenAPIHono();
-
-const BASE_URL = process.env.SERVER_URL || "http://localhost:3000/api";
 
 const route = createRoute({
     method: "post",
@@ -25,7 +22,6 @@ const route = createRoute({
             description: "Resources received",
         }
     }
-    
 });
 
 type resources = {
@@ -137,24 +133,8 @@ app.openapi(route, async (c) => {
     }
 
     return c.json({
-        status: "healthy",
         data,
     });
 });
-
-async function getResource<T>(resource: string) {
-    let data: T[] = [];
-    let link:
-        | string
-        | undefined = `/${resource}/`;
-
-    while (link) {
-        const res: {data: {count: number, next: string, results: T[]}} = await swapiClient.get(link);
-        data.push(...res.data.results);
-        link = res?.data?.next?.replace("https://swapi.dev/api/", "");
-    }
-
-    return data;
-}
 
 export default app;

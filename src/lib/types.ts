@@ -24,6 +24,7 @@ export type TFilm = {
     director: string,
     producer: string,
     release_date: string,
+    characters: string[] | TPeople[]
     species: string[] | TSpecies[],
     starships: string[] | TStarship[],
     vehicles: string[] | TVehicles[],
