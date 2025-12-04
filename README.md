@@ -1,6 +1,10 @@
 # AtomicJoltChallenge
 Coding Challenge for Atomic Jolt interview
 
+Public API: The Star Wars API: https://swapi.dev/
+
+Option B: Backend Focus
+
 ## Star Wars API
 
 A high performance backend API that aggregates data from the [SWAPI](https://swapi.dev/) API. This project focuseson solving common external API challenges, handling dependencies, enforcing concurrency limits, and implementing persistent caching.
