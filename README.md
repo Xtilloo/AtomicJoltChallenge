@@ -60,13 +60,13 @@ SWAPI includes strings containing values like: "unknown" or "n/a" which can caus
 
 ```bash
 git clone <url>
-cd atomicJoltChallenge
+cd AtomicJoltChallenge
 npm install
 ```
 
 2. Environment Setup
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory, and enter the following:
 
 ```
 AUTH_TOKEN=supersecrettoken
