@@ -1,7 +1,7 @@
 import { createRoute, OpenAPIHono } from '@hono/zod-openapi';
 import { getCachedResource, getResource, populateResources, sort } from '@/lib/helpers';
-import { TFilm, TPeople } from '@/lib/types';
-import { QuerySchema } from '@/schemas/filmsByPop';
+import { TFilm, TPeople, TPlanets } from '@/lib/types';
+import { QuerySchema } from '@/schemas/planetsByPop';
 
 const app = new OpenAPIHono();
 
@@ -13,7 +13,7 @@ const route = createRoute({
     },
     responses: {
         200: {
-            description: "flims-by-pop received",
+            description: "planets-by-pop received",
         }
     }
     
@@ -22,7 +22,7 @@ const route = createRoute({
 app.openapi(route, async (c) => {
     try{
         console.log(`Received /sort/films-by-pop`);
-
+        
         const order = c.req.valid("query")?.order || "desc"; // Default to descending
 
         // Verify query
@@ -32,21 +32,21 @@ app.openapi(route, async (c) => {
                 status: `Invalid Query Provided: ${order}`
             });
         }
-
-        const filmsResource = await getCachedResource<TFilm>("films", async () => {
-            const films = await getResource<TFilm>("films");
-            await populateResources(films, ["characters", "planets", "starships", "vehicles", "species"]);
-            return films;
+        
+        const planetsResource = await getCachedResource<TPlanets>("planets", async () => {
+            const planets = await getResource<TPlanets>("planets");
+            await populateResources(planets, ["residents", "films"]);
+            return planets;
         })
 
-        if (filmsResource && filmsResource.length > 0) {
-            sort(filmsResource, 'characters', order);
+        if (planetsResource && planetsResource.length > 0) {
+            sort(planetsResource, 'population', order);
         }
 
-        const data: {title: string, characters: TPeople[], character_count: number }[] = filmsResource.map((film) => ({
-            title: film.title,
-            characters: film.characters as TPeople[],
-            character_count: film.characters.length
+        const data: {name: string, population: string, climate: string }[] = planetsResource.map((planet) => ({
+            name: planet.name,
+            population: planet.population,
+            climate: planet.climate
         }));
 
         return c.json({

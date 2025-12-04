@@ -9,3 +9,13 @@ export const BodySchema = z.object(
         resources: z.array(ResourceEnum).openapi({ example: ["people", "planets"]}),
     }
 ).openapi("ResourceRequestBody");
+
+export const QuerySchema = z.object({
+  order: z
+    .string()
+    .optional()
+    .openapi({
+      param: { name: "order", in: "query" },
+      examples: ["asc", "desc"]
+    }),
+});

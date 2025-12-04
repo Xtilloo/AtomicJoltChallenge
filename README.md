@@ -111,7 +111,7 @@ To test the endpoints, use postman. [Setup Postman](https://learning.postman.com
     ```JSON
     {
         "data": {
-            [{"title": string, "character_count": number, "characters": string[]}]
+            [ {"title": string, "character_count": number, "characters": string[]} ]
         }
     }
     ```
