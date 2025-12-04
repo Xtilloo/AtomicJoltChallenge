@@ -76,8 +76,10 @@ AUTH_TOKEN=supersecrettoken
 
 Initialize the SQLite database using Prisma
 
-```
-npx prisma db push
+```bash
+npx prisma migrate dev
+npx prisma generate
+npx prisma studio (for viewing database)
 ```
 
 4. Run the Server
@@ -107,6 +109,7 @@ To test the endpoints, use postman. [Setup Postman](https://learning.postman.com
 
 - No request body 
 - Authorization: `Bearer supersecrettoken`
+- Query (optional): 'asc' or 'desc' to sort in ascending or descending order.
 - Response: 
     ```JSON
     {
@@ -116,6 +119,21 @@ To test the endpoints, use postman. [Setup Postman](https://learning.postman.com
     }
     ```
     Where the titles are the names of the films, character_count is the total number of characters, and characters is a list of character names.
+
+### `GET http://localhost:3000/api/sort/planets-by-pop`:
+
+- No request body 
+- Authorization: `Bearer supersecrettoken`
+- Query (optional): 'asc' or 'desc' to sort in ascending or descending order.
+- Response: 
+    ```JSON
+    {
+        "data": {
+            [ {"name": string, "population": number, "climate": string} ]
+        }
+    }
+    ```
+    Where the name are the names of the planets, population is the population of the planet, climate is the climate of the planet (for multiple climates, separated by ',')
 
 ### `POST http://localhost:3000/api/resources`:
 
@@ -165,3 +183,11 @@ src/
 ## Development Process
 
 When developing this project, I use AI when it comes to optimizing, improving efficiency, and reducing problems/errors. For example, when writing the sort algorithm in `src/lib/helpers.ts` I develop the initial outline of what the method should do, and implement it. Then, I use AI to review my implementation and ensure everything functions as expected, is efficient, and is safe (especially with types in TypeScript). 
+
+## Things I Would Have Improved
+
+If I had more time to develop this project, I would:
+
+1. Improve the error handling
+2. Improve the built in openAPI documentation generation
+3. Add a way to allow the request body to dictate the resource and sort value dynamically. For example, the request would provide the resource of interest, 'films' for example, and a sort value, 'starships', 'characters', 'opening_crawl', etc. This would allow for much more variety in the use cases of the API, but would also add complexity (checking to make sure the sort value is numeric, ensuring request body is valid containing no more no less of what is required, etc.). 
